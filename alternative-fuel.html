@@ -1,0 +1,47 @@
+<html>
+<head>
+  <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script type="text/javascript" src="/Users/apprentice/Desktop/altfuel/__jquery.tablesorter/jquery.tablesorter.js"></script>
+<script>
+
+// Get a bunch of data about stations.
+$.getJSON( "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=2gmuslvbQ0Xpg39bT5CA6X3uCZbRzMnU5z1VUJT6&location=Newark+NJ", function( data ) {
+  var items = [];
+  // Create headings for the table.
+  items.push("<thead><tr><th>Key</th><th>Station name</th><th>Cards accepted</th><th>Fuel type</th><th>Access</th><th>Date</th></tr></thead><tbody>");
+  var markers = "";
+  // Create a row for each fuel station.
+  $.each( data.fuel_stations, function( key, val ) {
+    markers = markers + "&markers=color:blue|label:" + key +"|" + val.latitude + "," + val.longitude;
+    var longstring = "<tr><td>" + key + "</td><td>" + val.station_name.toLowerCase() + "</td><td>" + val.cards_accepted + "</td><td>" + val.fuel_type_code + "</td><td>" + val.access_days_time + "</td><td>" + val.date_last_confirmed + "</td></tr>";
+    var nextkey = key + 1;
+
+    // Close the <tbody> tag at the end of the last station info row.
+    if (data.fuel_stations[nextkey] == undefined) {
+      longstring = longstring + "</tbody>";
+    }
+    console.log(val);
+    // Add the row to the table array.
+    items.push( longstring );
+  });
+  $( "<table/>", {
+    "id": "my-new-table",
+    "class": "tablesorter",
+    html: items.join( "" )
+  }).appendTo( "body" );
+
+  // Sort the data
+  $("#my-new-table").tablesorter( {sortList: [[0,0], [1,0]]} );
+
+  // Plot points on a map.
+  var maps_url = "http://maps.googleapis.com/maps/api/staticmap?center=Newark,NJ&zoom=10&size=600x300&maptype=roadmap%20&sensor=false" + markers;
+     var img_markup = "<img src='" + maps_url + "'/>";
+     $(img_markup).appendTo(" body ");
+});
+
+</script>
+</head>
+
+<body>
+</body>
+</html>
